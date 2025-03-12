@@ -2,7 +2,9 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
+const EventEmitter = require("events");
 
+const emitter = new EventEmitter();
 const file = path.join(__dirname, "urls.json"); // Path to JSON file
 const loadUrls = () => { 
   try {
@@ -26,7 +28,10 @@ const shortenUrl = async (url) => {
 
   urls[url] = response.data; // Cache URL
   saveUrls(urls); // Save URLs to file
+
+  emitter.emit("urlShortened", { long: url, short: urls[url] }); // Emit event
+
   return urls[url]; // Return shortened URL 
 };
 
-module.exports = { shortenUrl, loadUrls }; // Export function for reuse
+module.exports = { shortenUrl, loadUrls, emitter }; // Export function for reuse
